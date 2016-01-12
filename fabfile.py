@@ -15,7 +15,7 @@ from boto.s3.key import Key
 
 import requests
 
-from fabric.api import *
+from fabric.api import task
 
 ELASTIC_SEARCH_HOST = os.environ.get('ELASTIC_SEARCH_HOST', 'localhost')
 ELASTIC_SEARCH_PORT = os.environ.get('ELASTIC_SEARCH_PORT', 9200)
@@ -24,9 +24,11 @@ ELASTIC_SEARCH_PORT = os.environ.get('ELASTIC_SEARCH_PORT', 9200)
 # Helpers
 
 def _get_s3_bucket_vars():
-    global BUCKET_NAME, PATH_PREFIX
+    """Access BUCKET_NAME with _get_s3_bucket_vars()[0]
+       Access PATH_PREFIX with _get_s3_bucket_vars()[1]"""
     BUCKET_NAME = os.environ['KIBANA_BUCKET']
     PATH_PREFIX = os.environ['KIBANA_PREFIX']
+    return [BUCKET_NAME, PATH_PREFIX]
 
 def _es_url(path):
     return 'http://{0}:{1}{2}'.format(ELASTIC_SEARCH_HOST, ELASTIC_SEARCH_PORT, path)
@@ -36,7 +38,7 @@ def _get_boto_connection():
 
 def _get_backup_key(format=None):
     """Get backup key given the specified format"""
-    _get_s3_bucket_vars()
+    PATH_PREFIX = _get_s3_bucket_vars()[1]
     suffix = _get_time_string(format)
     return '%s/%s-dashboard_backup_%s.json' % (PATH_PREFIX, socket.gethostname(), suffix)
 
@@ -75,7 +77,7 @@ def _convert_dashboard_v0_v1(data_str):
 
 def _get_backup_object(key):
     """Get boto object from key"""
-    _get_s3_bucket_vars()
+    BUCKET_NAME = _get_s3_bucket_vars()[0]
     conn = _get_boto_connection()
     bucket = conn.get_bucket(BUCKET_NAME)
     for item in bucket.list():
@@ -84,7 +86,7 @@ def _get_backup_object(key):
     return None
 
 def _get_backup_objects():
-    _get_s3_bucket_vars()
+    BUCKET_NAME = _get_s3_bucket_vars()[0]
     conn = _get_boto_connection()
     bucket = conn.get_bucket(BUCKET_NAME)
     return bucket.list()
@@ -94,7 +96,7 @@ def _do_backup(backup_formats=None):
     if not backup_formats:
         raise ValueError("You must supply backup path formats")
 
-    _get_s3_bucket_vars()
+    BUCKET_NAME = _get_s3_bucket_vars()[0]
     conn = _get_boto_connection()
     bucket = conn.get_bucket(BUCKET_NAME)
 
@@ -105,6 +107,7 @@ def _do_backup(backup_formats=None):
         backup_paths.append(_get_backup_key(backup_format))
 
     for key_path in backup_paths:
+        BUCKET_NAME = _get_s3_bucket_vars()[0]
         print 'Uploading backup to Amazon S3 bucket %s/%s' % (BUCKET_NAME, key_path)
         # Update the dashboard backup
         k = Key(bucket)
@@ -198,7 +201,7 @@ def list_dashboards():
 @task(default=True)
 def list_backups():
     """Lists backups on S3"""
-    _get_s3_bucket_vars()
+    PATH_PREFIX = _get_s3_bucket_vars()[1]
     for item in _get_backup_objects():
         if PATH_PREFIX in item.key and not item.key.endswith('/'):
             size = len(item.get_contents_as_string())

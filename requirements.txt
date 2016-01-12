@@ -1,4 +1,6 @@
-requests==2.8.1
-boto==2.38.0
-fabric==1.10.2
-python-dateutil==2.4.2
+
+# Default `requirements.txt`, used by CircleCI and local dev (see README.md).
+# Do not add package specs here, rather put them into one of the requirements
+# files in the `/requirements` directory.
+
+-r requirements/dev.txt

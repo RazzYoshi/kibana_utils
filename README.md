@@ -1,5 +1,7 @@
-# kibana_utils
---------------
+kibana_utils
+===============
+
+[![Coverage Status](https://coveralls.io/repos/pantheon-systems/kibana_utils/badge.svg?branch=master&service=github)](https://coveralls.io/github/pantheon-systems/kibana_utils?branch=master)
 
 Fabric-based utilities for working with Kibana (backups, etc)
 
@@ -7,7 +9,7 @@ Primarily, this is used to back up Kibana dashboards that are stored in ElasticS
 
 ## Requirements
 
-* `pip install -r requirements.txt`
+`pip install -r requirements.txt`
 
 ## Configuration
 
@@ -26,8 +28,6 @@ By default, this looks for ElasticSearch on localhost:9200.  This can be configu
 export ELASTIC_SEARCH_HOST=127.0.02
 export ELASTIC_SEARCH_PORT=9292
 ```
-
-
 
 ## Usage (standard fabric)
 
