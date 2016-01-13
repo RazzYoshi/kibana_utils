@@ -49,7 +49,7 @@ def _get_time_string(format):
 def _get_dashboards():
     """Query dashboards stored in ElasticSearch"""
     return requests.get(_es_url('/kibana-int/dashboard/_search?q=*&size=1000')).text
-
+        
 def _get_dashboard(id):
     """Query dashboard by name/id in ElasticSearch"""
     data = json.loads(requests.get(_es_url('/kibana-int/dashboard/{0}'.format(id))).text)
