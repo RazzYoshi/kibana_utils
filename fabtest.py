@@ -38,10 +38,10 @@ def main():
     os.environ['ELASTIC_SEARCH_HOST'] = '127.0.02'
     os.environ['ELASTIC_SEARCH_PORT'] = '9292'
 
-    data = json.loads('{"_source":1}')
-    ret = data['_source']
-    print ret
-    print type(ret)
+    datas = json.loads('{"_source":1,"@fields._name":2}')
+    data = json.dumps(datas)
+    
+    print fabfile._convert_dashboard_v0_v1(data)
     #fabfile._get_dashboard = MagicMock(return_value=)
     #var = fabfile._get_dashboard(7)
 

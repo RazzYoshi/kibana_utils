@@ -89,11 +89,29 @@ class fabFileTestCase(unittest.TestCase):
         self.assertTrue(requests_put.called)
     '''
 
+    #_convert_dashboard_v0_v1()
+    def test_convert_dashboard_v0_v1_correctly_removes_fields(self):
+        mockstring = fabfile._convert_dashboard_v0_v1('{"_source":1,"@fields._name":2}')
+        self.assertEquals(mockstring, '{"_source":1,"_name":2}')
+
+    #_get_backup_object()
+    @patch('fabfile._get_boto_connection')
+    def test_get_backup_object_calls_get_boto_connection(self, get_boto_connection):
+        fabfile._get_backup_object(1)
+        self.assertTrue(get_boto_connection.called)
+
     #_get_backup_objects()
     @patch('fabfile._get_boto_connection')
-    def test_get_backup_objects_returns_boto_bucketlistresultset(self, get_boto_connection):
-        mocklist = fabfile._get_backup_objects()
+    def test_get_backup_objects_calls_get_boto_connection(self, get_boto_connection):
+        fabfile._get_backup_objects()
         self.assertTrue(get_boto_connection.called)
+
+    #_do_backup()
+    @patch('fabfile._get_boto_connection')
+    @patch('fabfile._get_dashboards')
+    def test_do_backup_calls_get_dashboards(self, get_boto_connection, get_dashboards):
+        fabfile._do_backup(['a','b','c'])
+        self.assertTrue(get_dashboards.called)
 
     ###Task tests
     #verify_backups()
@@ -102,7 +120,25 @@ class fabFileTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit) as system_exit:
             fabfile.verify_backups()
         self.assertTrue(get_backup_objects.called)
+
+    #delete_dashboards()
+    @patch('json.loads')
+    @patch('requests.get')
+    @patch('requests.delete')
+    def test_delete_dashboards_calls_requests_delete(self, json_loads, requests_get, requests_delete):
+        fabfile.delete_dashboards()
+        self.assertTrue(requests_delete.called)
     
+    '''
+    #restore_dashboards()
+    @patch('json.loads', return_value={"_source":1})
+    @patch('fabfile._get_backup_objects', return_value=True)
+    @patch('requests.post')
+    @patch('fabfile._get_boto_connection')
+    def test_restore_dashboards_calls_requests_post(self, json_loads, get_backup_objects, requests_post, get_boto_connection):
+        fabfile.restore_dashboards(1)
+        self.assertTrue(requests_post.called)
+    '''
     
 if __name__ == "__main__":
     unittest.main() # run all tests
