@@ -10,7 +10,7 @@ import mock
 from mock import patch
 
 class fabFileTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         os.environ['AWS_SECRET_ACCESS_KEY'] = 'asdf'
         os.environ['AWS_ACCESS_KEY_ID'] = 'candycane'
@@ -80,14 +80,12 @@ class fabFileTestCase(unittest.TestCase):
         dashboard = fabfile._get_dashboard(7)
         self.assertEquals(dashboard,1)
 
-    '''
     #_create_dashboard()
     @patch('requests.put')
-    @patch('requests.put.status_code', return_value=201)
-    def test_create_dashboard_calls_requests_put(self, requests_put, r_status_code):
-        fabfile._create_dashboard(7,{"_source":1})
+    def test_create_dashboard_calls_requests_put(self, requests_put):
+        with self.assertRaises(Exception) as raised_exception:
+            fabfile._create_dashboard(7,{"_source":1})
         self.assertTrue(requests_put.called)
-    '''
 
     #_convert_dashboard_v0_v1()
     def test_convert_dashboard_v0_v1_correctly_removes_fields(self):
@@ -129,16 +127,66 @@ class fabFileTestCase(unittest.TestCase):
         fabfile.delete_dashboards()
         self.assertTrue(requests_delete.called)
     
-    '''
     #restore_dashboards()
-    @patch('json.loads', return_value={"_source":1})
-    @patch('fabfile._get_backup_objects', return_value=True)
     @patch('requests.post')
     @patch('fabfile._get_boto_connection')
-    def test_restore_dashboards_calls_requests_post(self, json_loads, get_backup_objects, requests_post, get_boto_connection):
+    def test_restore_dashboards_calls_requests_post(self, requests_post, get_boto_connection):
+        def mock_get_contents_as_string(self):
+            return '{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}'
+
+        mock_backup_object = mock.Mock('fabfile._get_backup_object')
+        mock_backup_object.get_contents_as_string = mock_get_contents_as_string
+
         fabfile.restore_dashboards(1)
         self.assertTrue(requests_post.called)
-    '''
-    
+
+    #export_dashboard()
+    @patch('json.dumps', return_value= '{"_source":1}')
+    @patch('requests.get')
+    @patch('fabfile._get_dashboard')
+    def test_export_dashboard_calls_json_dumps(self, json_dumps, requests_get, get_dashboard):
+        fabfile.export_dashboard("pantheon","pantheon.txt")
+        self.assertTrue(json_dumps.called)
+
+    #import_dashboard()
+    @patch('json.loads')
+    @patch('requests.get')
+    @patch('fabfile._create_dashboard')
+    def test_import_dashboard_calls_json_loads(self, json_loads, requests_get, create_dashboard):
+        fabfile.import_dashboard("pantheon","pantheon.txt")
+        self.assertTrue(json_loads.called)
+
+    #convert_dashboard_v0_v1()
+    @patch('fabfile._convert_dashboard_v0_v1', return_value="pantheor")
+    def test_convert_dashboard_v0_v1_calls_convert_dashboard_v0_v1_helper(self, convert_dashboard_v0_v1):
+        fabfile.convert_dashboard_v0_v1("pantheon.txt","pantheonio.txt")
+        self.assertTrue(convert_dashboard_v0_v1.called)
+
+    #list_dashboards()
+    @patch('json.loads')
+    @patch('requests.get')
+    def test_list_dashboards_calls_json_loads(self, json_loads, requests_get):
+        fabfile.list_dashboards()
+        self.assertTrue(json_loads.called)
+
+    #print_backup()
+    @patch('fabfile._get_backup_object')
+    def test_print_backup_calls_get_backup_object(self, get_backup_object):
+        def mock_get_contents_as_string(self):
+            return '{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}'
+
+        mock_backup_object = mock.Mock('fabfile._get_backup_object')
+        mock_backup_object.get_contents_as_string = mock_get_contents_as_string
+
+        fabfile.print_backup(1)
+        self.assertTrue(get_backup_object.called)
+
+    #backup()
+    @patch('fabfile._get_dashboards')
+    @patch('fabfile._get_boto_connection')
+    def test_backup_calls_get_dashboards(self, get_dashboards, get_boto_connection):
+        fabfile.backup()
+        self.assertTrue(get_dashboards.called)
+
 if __name__ == "__main__":
     unittest.main() # run all tests

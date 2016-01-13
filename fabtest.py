@@ -38,10 +38,11 @@ def main():
     os.environ['ELASTIC_SEARCH_HOST'] = '127.0.02'
     os.environ['ELASTIC_SEARCH_PORT'] = '9292'
 
-    datas = json.loads('{"_source":1,"@fields._name":2}')
-    data = json.dumps(datas)
-    
-    print fabfile._convert_dashboard_v0_v1(data)
+    dashboards = json.loads('{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}')['hits']['hits']
+
+    filename = "pantheon.txt"
+    with open(filename, 'w') as f:
+        f.write(json.dumps(fabfile._get_dashboard('{"_source":1}')))
     #fabfile._get_dashboard = MagicMock(return_value=)
     #var = fabfile._get_dashboard(7)
 

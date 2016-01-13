@@ -153,7 +153,7 @@ def restore_dashboards(backup_key):
     """Restores dashboards from given s3 key"""
     backup_object = _get_backup_object(backup_key)
     if backup_object:
-        dashboards = json.loads(backup_object.get_contents_as_string())['hits']['hits']
+        dashboards = json.loads(backup_object.get_contents_as_string)['hits']['hits']
         for dashboard in dashboards:
             dash_id = dashboard["_id"]
             data = dashboard['_source']

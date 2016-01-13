@@ -1,7 +1,7 @@
 kibana_utils
 ===============
 
-[![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_unknown.svg)](https://coveralls.io/github/pantheon-systems/kibana_utils?branch=master)
+[![Coverage Status](https://coveralls.io/repos/pantheon-systems/kibana_utils/badge.svg?branch=master&service=github)](https://coveralls.io/github/pantheon-systems/kibana_utils?branch=master)
 
 Fabric-based utilities for working with Kibana (backups, etc)
 
