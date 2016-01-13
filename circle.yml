@@ -10,5 +10,5 @@ dependencies:
 
 test:
   override:
-    - python test_fabfile.py
+    - py.test test_fabfile.py --cov=fabfile
     - coveralls
