@@ -144,8 +144,8 @@ def delete_dashboards():
     dashboards = json.loads(_get_dashboards())['hits']['hits']
     for dashboard in dashboards:
         print "Deleting  {0}".format(dashboard["_id"])
-        r = requests.delete(_es_url('/kibana-int/dashboard/{0}'.format(dashboard["_id"])))
-        if r.status_code != requests.codes.ok:
+        response = requests.delete(_es_url('/kibana-int/dashboard/{0}'.format(dashboard["_id"])))
+        if response.status_code != requests.codes.ok:
             print "Error: {0}".format(response)
 
 @task

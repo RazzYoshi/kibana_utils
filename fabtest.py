@@ -40,9 +40,12 @@ def main():
 
     dashboards = json.loads('{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}')['hits']['hits']
 
-    filename = "pantheon.txt"
-    with open(filename, 'w') as f:
-        f.write(json.dumps(fabfile._get_dashboard('{"_source":1}')))
+    for dashboard in dashboards:
+        dash_id = dashboard["_id"]
+        data = dashboard['_source']
+        print "Restoring dashboard {0}".format(dash_id)
+    
+    print dashboards 
     #fabfile._get_dashboard = MagicMock(return_value=)
     #var = fabfile._get_dashboard(7)
 

@@ -6,6 +6,8 @@ import datetime
 import requests
 import json
 
+import dateutil
+
 import mock
 from mock import patch
 
@@ -113,24 +115,26 @@ class fabFileTestCase(unittest.TestCase):
 
     ###Task tests
     #verify_backups()
-    @patch('fabfile._get_backup_objects')
-    def test_verify_backups_calls_get_backup_objects(self, get_backup_objects):
+    @patch('dateutil.parser.parse')
+    @patch('fabfile._get_boto_connection')
+    def test_verify_backups_calls_parser_parse(self, parser_parse, get_boto_connection):
         with self.assertRaises(SystemExit) as system_exit:
             fabfile.verify_backups()
-        self.assertTrue(get_backup_objects.called)
+        self.assertTrue(parser_parse.called)
 
     #delete_dashboards()
-    @patch('json.loads')
     @patch('requests.get')
     @patch('requests.delete')
-    def test_delete_dashboards_calls_requests_delete(self, json_loads, requests_get, requests_delete):
+    @patch('fabfile._get_dashboards', return_value= '{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}')
+    def test_delete_dashboards_calls_requests_delete(self, requests_get, requests_delete, get_dashboards):
         fabfile.delete_dashboards()
         self.assertTrue(requests_delete.called)
     
+    #needs refactoring, actual coverage smaller than intended
     #restore_dashboards()
     @patch('requests.post')
     @patch('fabfile._get_boto_connection')
-    def test_restore_dashboards_calls_requests_post(self, requests_post, get_boto_connection):
+    def test_restore_dashboards_calls_requests_post_attempt(self, requests_post, get_boto_connection):
         def mock_get_contents_as_string(self):
             return '{"hits":{"hits":[{"_id":1,"_source":"com.google"},{"_id":2,"_source":"io.pantheon"}]}}'
 
@@ -168,6 +172,13 @@ class fabFileTestCase(unittest.TestCase):
     def test_list_dashboards_calls_json_loads(self, json_loads, requests_get):
         fabfile.list_dashboards()
         self.assertTrue(json_loads.called)
+
+    #list_backups()
+    @patch('fabfile._get_backup_object')
+    @patch('fabfile._get_boto_connection')
+    def test_list_backups_calls_get_backup_object(self, get_backup_object, get_boto_connection):
+        fabfile.list_backups()
+        self.assertTrue(get_backup_object.called)
 
     #print_backup()
     @patch('fabfile._get_backup_object')
