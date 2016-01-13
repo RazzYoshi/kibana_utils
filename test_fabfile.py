@@ -115,9 +115,14 @@ class fabFileTestCase(unittest.TestCase):
 
     ###Task tests
     #verify_backups()
+    mock_backup_object = mock.MagicMock()
+    mock_backup_object.key = 'pantheon'
+    @patch('fabfile._get_backup_key', return_value='pantheon')
+    @patch('fabfile._get_backup_objects', return_value=[mock_backup_object])
     @patch('dateutil.parser.parse')
     @patch('fabfile._get_boto_connection')
-    def test_verify_backups_calls_parser_parse(self, parser_parse, get_boto_connection):
+    #@patch('boto.get_contents_as_string', return_value="pantheon")
+    def test_verify_backups_calls_parser_parse(self, get_backup_key, get_backup_objects, parser_parse, get_boto_connection):
         with self.assertRaises(SystemExit) as system_exit:
             fabfile.verify_backups()
         self.assertTrue(parser_parse.called)
